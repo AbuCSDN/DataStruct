@@ -1,0 +1,124 @@
+1.在一个二维数组中每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个
+函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。时间复杂度 O(row+col)
+
+bool Find(int *matrix, int rows, int columns, int number)
+{
+ bool found = false;
+ if (matrix != NULL && rows > 0 && columns > 0)
+ {
+  int row = 0;
+  int column = columns - 1;
+  while (row < rows && column >= 0)
+  {
+   if (matrix[row*columns + column] == number)
+   {
+    found = true;
+    break;
+   }
+   else if (matrix[row*columns + column] > number)
+   {
+    --column;
+   }
+   else
+    ++row;
+  }
+ }
+ return found;
+}
+
+2.要求写一个函数，将字符串中的空格替换为%20。样例： “abc defgx yz” 转换成 “abc%20defgx%20yz”
+void ReplaceBlank(char string[], int length)
+{
+ if (string == NULL || length <= 0)
+  return;
+ int originalLength = 0;
+ int numberOfBlank = 0;
+ int i = 0;
+ while (string[i] != '\0')  //字符串长度
+ {
+  ++originalLength;
+  if (string[i] == ' ')  //空格个数
+   ++numberOfBlank;
+  ++i;
+ }
+int newLength = originalLength + numberOfBlank * 2;
+ if (newLength > length)
+  return;
+ int indexOfOriginal = originalLength;  //原始字符串最后一个位置
+ int indexOfNew = newLength;            //扩容后字符串最后一个位
+置
+while (indexOfOriginal >= 0 && indexOfNew > indexOfOriginal)
+ {
+  if (string[indexOfOriginal] == ' ')
+  {
+   string[indexOfNew--] = '0';
+   string[indexOfNew--] = '2';
+   string[indexOfNew--] = '%';
+  }
+  else
+  {
+   string[indexOfNew--] = string[indexOfOriginal];
+  }
+  --indexOfOriginal;
+ }
+}
+
+3.编写函数，求第n个斐波那契数列的值(非递归)
+long long fib(unsigned n)
+{
+ int result[2] = { 0, 1 };
+ if (n < 2)
+  return result[n];
+ long long fibOne = 1;
+ long long fibTwo = 0;
+ long long fibN = 0;
+ for (unsigned int i = 2; i <= n; ++i)
+ {
+  fibN = fibOne + fibTwo;
+  fibTwo = fibOne;
+  fibOne = fibN;
+ }
+ return fibN;
+}
+
+4.写一个函数求，求 unsigned int 型变量 x 在内存中二进制 1 的个数
+int CountOne(int number)
+{
+ int count = 0;
+ while (number)
+ {
+  ++count;
+  number = number&(number - 1);
+ }
+ return count;
+}
+
+5.有一张单链表，编写函数求倒数第K个结点.
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* getKthFromEnd(struct ListNode* head, int k)
+{
+    if(head == NULL || k == 0)
+        return NULL;
+    struct ListNode *pAhead = head;
+    struct ListNode *pBhead = NULL;
+    for(int i=0;i<k-1;++i)
+    {
+        if(pAhead->next != NULL)
+            pAhead = pAhead->next;
+        else
+            return NULL;
+    }
+    pBhead = head;
+    while(pAhead->next != NULL)
+    {
+        pAhead = pAhead->next;
+        pBhead = pBhead->next;
+    }
+    return pBhead;
+}
