@@ -1,0 +1,602 @@
+1、https://leetcode-cn.com/problems/valid-parentheses/  [括号匹配问题]
+typedef char ElemType;
+typedef struct LinkStackNode
+{
+	ElemType data;
+	struct LinkStackNode *link;
+}LinkStackNode;
+typedef LinkStackNode* LinkStack;
+void LinkStackInit(LinkStack *pst);
+void LinkStackPush(LinkStack *pst, ElemType x);
+void LinkStackPop(LinkStack *pst);
+ElemType LinkStackTop(LinkStack *pst);
+int LinkStackSize(LinkStack *pst);
+bool LinkStackEmpty(LinkStack *pst);
+void LinkStackDestroy(LinkStack *pst);
+/////////////////////////////////////////////////////
+void LinkStackInit(LinkStack *pst)
+{
+	assert(pst != NULL);
+	*pst = NULL;
+}
+void LinkStackPush(LinkStack *pst, ElemType x)
+{
+	assert(pst != NULL);
+	LinkStackNode *node = (LinkStackNode*)malloc(sizeof(LinkStackNode));
+	assert(node != NULL);
+	node->data = x;
+	node->link = *pst;
+	*pst = node;
+}
+void LinkStackPop(LinkStack *pst)
+{
+	assert(pst != NULL);
+	if(*pst != NULL)
+	{
+		LinkStackNode *p = *pst;
+		*pst = p->link;
+		free(p);
+	}
+}
+ElemType LinkStackTop(LinkStack *pst)
+{
+	assert(pst != NULL && *pst != NULL);
+	return (*pst)->data;
+}
+int LinkStackSize(LinkStack *pst)
+{
+	assert(pst != NULL);
+	int size = 0;
+	LinkStackNode *p = *pst;
+	while(p != NULL)
+	{
+		size++;
+		p = p->link;
+	}
+	return size;
+}
+bool LinkStackEmpty(LinkStack *pst)
+{
+    assert(pst != NULL);
+    return *pst == NULL;
+}
+void LinkStackDestroy(LinkStack *pst)
+{
+	assert(pst != NULL);
+	LinkStackNode *p = *pst;
+	while(p != NULL)
+	{
+		*pst = p->link;
+		free(p);
+		p = *pst;
+	}
+}
+//////////////////////////////////////////////////////////////
+bool isValid(char * s)
+{
+    if(s == NULL)
+        return false;
+    if(*s == '\0')
+        return true;
+    LinkStack st;
+    LinkStackInit(&st);
+    while(*s != '\0')
+    {
+        if(*s=='{' || *s=='[' || *s=='(')
+            LinkStackPush(&st, *s);
+        else
+        {
+            if(LinkStackEmpty(&st))
+				return false;
+            char top = LinkStackTop(&st);
+            if((*s=='}'&&top!='{') || (*s==']'&&top!='[') || (*s==')'&&top!='('))
+                return false;
+            LinkStackPop(&st);
+        }
+        s++;
+    }
+    bool flag = LinkStackEmpty(&st);
+    LinkStackDestroy(&st);
+    return flag;
+}
+2、https://leetcode-cn.com/problems/implement-stack-using-queues/   [用队列实现栈]
+typedef int ElemType;
+typedef struct LinkQueueNode
+{
+	ElemType data;
+	struct LinkQueueNode *link;
+}LinkQueueNode;
+typedef struct LinkQueue
+{
+	LinkQueueNode *head; // 队头指针
+	LinkQueueNode *tail; // 队尾指针
+}LinkQueue;
+void LinkQueueInit(LinkQueue *pq);
+void LinkQueueEn(LinkQueue *pq, ElemType x);
+void LinkQueueDe(LinkQueue *pq);
+ElemType LinkQueueFront(LinkQueue *pq);
+ElemType LinkQueueBack(LinkQueue *pq);
+int LinkQueueSize(LinkQueue *pq);
+bool LinkQueueEmpty(LinkQueue *pq);
+void LinkQueueDestroy(LinkQueue *pq);
+/////////////////////////////////////////////////////
+void LinkQueueInit(LinkQueue *pq)
+{
+	assert(pq != NULL);
+	pq->head = pq->tail = NULL;
+}
+void LinkQueueEn(LinkQueue *pq, ElemType x)
+{
+	assert(pq != NULL);
+	LinkQueueNode *node = (LinkQueueNode*)malloc(sizeof(LinkQueueNode));
+	assert(node != NULL);
+	node->data = x;
+	node->link = NULL;
+	if(pq->head == NULL)
+		pq->head = pq->tail = node;
+	else
+	{
+		pq->tail->link = node;
+		pq->tail = node;
+	}
+}
+void LinkQueueDe(LinkQueue *pq)
+{
+	assert(pq != NULL);
+	if(pq->head != NULL)
+	{
+		LinkQueueNode *p = pq->head;
+		if(pq->head == pq->tail)
+			pq->head = pq->tail = NULL;
+		else
+			pq->head = p->link;
+		free(p);
+	}
+}
+ElemType LinkQueueFront(LinkQueue *pq)
+{
+	assert(pq != NULL);
+	assert(pq->head != NULL);
+	return pq->head->data;  //return pq->tail->data
+}
+ElemType LinkQueueBack(LinkQueue *pq)
+{
+    assert(pq != NULL);
+	assert(pq->head != NULL);
+	return pq->tail->data;  //return pq->tail->data
+}
+int LinkQueueSize(LinkQueue *pq)
+{
+	assert(pq != NULL);
+	int size = 0;
+	LinkQueueNode *p = pq->head;
+	while(p != NULL)
+	{
+		size++;
+		p = p->link;
+	}
+	return size;
+}
+bool LinkQueueEmpty(LinkQueue *pq)
+{
+	assert(pq != NULL);
+	return pq->head == NULL;
+}
+void LinkQueueDestroy(LinkQueue *pq)
+{
+	assert(pq != NULL);
+	LinkQueueNode *p = pq->head;
+	while(p != NULL)
+	{
+		pq->head = p->link;
+		free(p);
+		p = pq->head;
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+    LinkQueue q1;
+    LinkQueue q2;
+} MyStack;
+/** Initialize your data structure here. */
+MyStack* myStackCreate() {
+    MyStack *pst = (MyStack*)malloc(sizeof(MyStack));
+    LinkQueueInit(&(pst->q1));
+    LinkQueueInit(&(pst->q2));
+    return pst;
+}
+/** Push element x onto stack. */
+void myStackPush(MyStack* obj, int x) {
+    LinkQueue *pnoempty;
+    if(LinkQueueEmpty(&(obj->q1)))
+        pnoempty = &(obj->q2);
+    else
+        pnoempty = &(obj->q1);
+    
+    LinkQueueEn(pnoempty, x);
+}
+/** Removes the element on top of the stack and returns that element. */
+int myStackPop(MyStack* obj) {
+    LinkQueue *pempty, *pnoempty;
+    if(LinkQueueEmpty(&(obj->q1)))
+    {
+        pempty = &(obj->q1);
+        pnoempty = &(obj->q2);
+    }
+    else
+    {
+        pnoempty = &(obj->q1);
+        pempty = &(obj->q2);        
+    }
+    ElemType val; 
+    while(!LinkQueueEmpty(pnoempty))
+    {
+        val = LinkQueueFront(pnoempty);
+        LinkQueueDe(pnoempty);
+        if(LinkQueueEmpty(pnoempty))
+            break;
+        LinkQueueEn(pempty, val);
+    }
+    return val;
+}
+/** Get the top element. */
+int myStackTop(MyStack* obj) {
+    LinkQueue *pnoempty;
+    if(!LinkQueueEmpty(&(obj->q1)))
+        pnoempty = &(obj->q1);
+    else
+        pnoempty = &(obj->q2);
+    return LinkQueueBack(pnoempty);
+}
+/** Returns whether the stack is empty. */
+bool myStackEmpty(MyStack* obj) {
+    return LinkQueueEmpty(&(obj->q1)) && LinkQueueEmpty(&(obj->q2));
+}
+void myStackFree(MyStack* obj) {
+    LinkQueueDestroy(&(obj->q1));
+    LinkQueueDestroy(&(obj->q2));
+    free(obj);
+}
+/**
+ * Your MyStack struct will be instantiated and called as such:
+ * MyStack* obj = myStackCreate();
+ * myStackPush(obj, x);
+ 
+ * int param_2 = myStackPop(obj);
+ 
+ * int param_3 = myStackTop(obj);
+ 
+ * bool param_4 = myStackEmpty(obj);
+ 
+ * myStackFree(obj);
+*/
+3、https://leetcode-cn.com/problems/implement-queue-using-stacks/ [用栈实现队列]
+typedef char ElemType;
+typedef struct LinkStackNode
+{
+	ElemType data;
+	struct LinkStackNode *link;
+}LinkStackNode;
+typedef LinkStackNode* LinkStack;
+void LinkStackInit(LinkStack *pst);
+void LinkStackPush(LinkStack *pst, ElemType x);
+void LinkStackPop(LinkStack *pst);
+ElemType LinkStackTop(LinkStack *pst);
+int LinkStackSize(LinkStack *pst);
+bool LinkStackEmpty(LinkStack *pst);
+void LinkStackDestroy(LinkStack *pst);
+/////////////////////////////////////////////////////
+void LinkStackInit(LinkStack *pst)
+{
+	assert(pst != NULL);
+	*pst = NULL;
+}
+void LinkStackPush(LinkStack *pst, ElemType x)
+{
+	assert(pst != NULL);
+	LinkStackNode *node = (LinkStackNode*)malloc(sizeof(LinkStackNode));
+	assert(node != NULL);
+	node->data = x;
+	node->link = *pst;
+	*pst = node;
+}
+void LinkStackPop(LinkStack *pst)
+{
+	assert(pst != NULL);
+	if(*pst != NULL)
+	{
+		LinkStackNode *p = *pst;
+		*pst = p->link;
+		free(p);
+	}
+}
+ElemType LinkStackTop(LinkStack *pst)
+{
+	assert(pst != NULL && *pst != NULL);
+	return (*pst)->data;
+}
+int LinkStackSize(LinkStack *pst)
+{
+	assert(pst != NULL);
+	int size = 0;
+	LinkStackNode *p = *pst;
+	while(p != NULL)
+	{
+		size++;
+		p = p->link;
+	}
+	return size;
+}
+bool LinkStackEmpty(LinkStack *pst)
+{
+    assert(pst != NULL);
+    return *pst == NULL;
+}
+void LinkStackDestroy(LinkStack *pst)
+{
+	assert(pst != NULL);
+	LinkStackNode *p = *pst;
+	while(p != NULL)
+	{
+		*pst = p->link;
+		free(p);
+		p = *pst;
+	}
+}
+///////////////////////////////////////////////////////////////////////////////////
+typedef struct {
+    LinkStack instack;
+    LinkStack outstack;
+} MyQueue;
+/** Initialize your data structure here. */
+MyQueue* myQueueCreate() {
+    MyQueue *pq = (MyQueue *)malloc(sizeof(MyQueue));
+    LinkStackInit(&(pq->instack));
+    LinkStackInit(&(pq->outstack));
+    return pq;
+}
+/** Push element x to the back of queue. */
+void myQueuePush(MyQueue* obj, int x) {
+    LinkStackPush(&(obj->instack), x);
+}
+/** Removes the element from in front of queue and returns that element. */
+int myQueuePop(MyQueue* obj) {
+    if(LinkStackEmpty(&(obj->outstack)))
+    {
+        while(!LinkStackEmpty(&(obj->instack)))
+        {
+            LinkStackPush(&(obj->outstack), LinkStackTop(&(obj->instack)));
+            LinkStackPop(&(obj->instack));
+        }
+    }
+    ElemType val = LinkStackTop(&(obj->outstack));
+    LinkStackPop(&(obj->outstack));
+    return val;
+}
+/** Get the front element. */
+int myQueuePeek(MyQueue* obj) {
+    if(LinkStackEmpty(&(obj->outstack)))
+    {
+        while(!LinkStackEmpty(&(obj->instack)))
+        {
+            LinkStackPush(&(obj->outstack), LinkStackTop(&(obj->instack)));
+            LinkStackPop(&(obj->instack));
+        }
+    }
+    ElemType val = LinkStackTop(&(obj->outstack));
+    return val;
+}
+/** Returns whether the queue is empty. */
+bool myQueueEmpty(MyQueue* obj) {
+    return LinkStackEmpty(&(obj->instack)) && LinkStackEmpty(&(obj->outstack));
+}
+void myQueueFree(MyQueue* obj) {
+    LinkStackDestroy(&(obj->instack));
+    LinkStackDestroy(&(obj->outstack));
+    free(obj);
+}
+/**
+ * Your MyQueue struct will be instantiated and called as such:
+ * MyQueue* obj = myQueueCreate();
+ * myQueuePush(obj, x);
+ 
+ * int param_2 = myQueuePop(obj);
+ 
+ * int param_3 = myQueuePeek(obj);
+ 
+ * bool param_4 = myQueueEmpty(obj);
+ 
+ * myQueueFree(obj);
+*/
+4、https://leetcode-cn.com/problems/min-stack/ [实现一个最小栈]
+typedef int ElemType;
+typedef struct LinkStackNode
+{
+	ElemType data;
+	struct LinkStackNode *link;
+}LinkStackNode;
+typedef LinkStackNode* LinkStack;
+void LinkStackInit(LinkStack *pst);
+void LinkStackPush(LinkStack *pst, ElemType x);
+void LinkStackPop(LinkStack *pst);
+ElemType LinkStackTop(LinkStack *pst);
+int LinkStackSize(LinkStack *pst);
+bool LinkStackEmpty(LinkStack *pst);
+void LinkStackDestroy(LinkStack *pst);
+/////////////////////////////////////////////////////
+void LinkStackInit(LinkStack *pst)
+{
+	assert(pst != NULL);
+	*pst = NULL;
+}
+void LinkStackPush(LinkStack *pst, ElemType x)
+{
+	assert(pst != NULL);
+	LinkStackNode *node = (LinkStackNode*)malloc(sizeof(LinkStackNode));
+	assert(node != NULL);
+	node->data = x;
+	node->link = *pst;
+	*pst = node;
+}
+void LinkStackPop(LinkStack *pst)
+{
+	assert(pst != NULL);
+	if(*pst != NULL)
+	{
+		LinkStackNode *p = *pst;
+		*pst = p->link;
+		free(p);
+	}
+}
+ElemType LinkStackTop(LinkStack *pst)
+{
+	assert(pst != NULL && *pst != NULL);
+	return (*pst)->data;
+}
+int LinkStackSize(LinkStack *pst)
+{
+	assert(pst != NULL);
+	int size = 0;
+	LinkStackNode *p = *pst;
+	while(p != NULL)
+	{
+		size++;
+		p = p->link;
+	}
+	return size;
+}
+bool LinkStackEmpty(LinkStack *pst)
+{
+    assert(pst != NULL);
+    return *pst == NULL;
+}
+void LinkStackDestroy(LinkStack *pst)
+{
+	assert(pst != NULL);
+	LinkStackNode *p = *pst;
+	while(p != NULL)
+	{
+		*pst = p->link;
+		free(p);
+		p = *pst;
+	}
+}
+//////////////////////////////////////////////////////////
+typedef struct {
+    LinkStack st;
+    LinkStack min_st;
+} MinStack;
+/** initialize your data structure here. */
+MinStack* minStackCreate() {
+    MinStack *pst = (MinStack*)malloc(sizeof(MinStack));
+    LinkStackInit(&(pst->st));
+    LinkStackInit(&(pst->min_st));
+    return pst;
+}
+void minStackPush(MinStack* obj, int x) {
+    LinkStackPush(&(obj->st), x);
+    if(LinkStackEmpty(&(obj->min_st)) || x<=LinkStackTop(&(obj->min_st)))
+        LinkStackPush(&(obj->min_st), x);
+}
+void minStackPop(MinStack* obj) {
+    ElemType topval = LinkStackTop(&(obj->st));
+    LinkStackPop(&(obj->st));
+    if(topval == LinkStackTop(&(obj->min_st)))
+        LinkStackPop(&(obj->min_st));
+}
+int minStackTop(MinStack* obj) {
+    return LinkStackTop(&(obj->st));
+}
+int minStackGetMin(MinStack* obj) {
+    return LinkStackTop(&(obj->min_st));
+}
+void minStackFree(MinStack* obj) {
+    LinkStackDestroy(&(obj->st));
+    LinkStackDestroy(&(obj->min_st));
+    free(obj);
+}
+/**
+ * Your MinStack struct will be instantiated and called as such:
+ * MinStack* obj = minStackCreate();
+ * minStackPush(obj, x);
+ 
+ * minStackPop(obj);
+ 
+ * int param_3 = minStackTop(obj);
+ 
+ * int param_4 = minStackGetMin(obj);
+ 
+ * minStackFree(obj);
+*/
+5、https://leetcode-cn.com/problems/design-circular-queue/ [设计循环队列]
+typedef struct {
+    int *base;
+    int  capacity;
+    int  front;
+    int  rear;
+} MyCircularQueue;
+/** Initialize your data structure here. Set the size of the queue to be k. */
+MyCircularQueue* myCircularQueueCreate(int k) {
+    MyCircularQueue *pcq = (MyCircularQueue*)malloc(sizeof(MyCircularQueue));
+    pcq->base = (int*)malloc(sizeof(int) * (k+1));
+    pcq->capacity = k;
+    pcq->front = pcq->rear = 0;
+    return pcq;
+}
+/** Checks whether the circular queue is empty or not. */
+bool myCircularQueueIsEmpty(MyCircularQueue* obj) {
+    return obj->front == obj->rear;
+}
+/** Checks whether the circular queue is full or not. */
+bool myCircularQueueIsFull(MyCircularQueue* obj) {
+    return ((obj->rear+1)%(obj->capacity+1)) == obj->front;
+}
+/** Insert an element into the circular queue. Return true if the operation is successful. */
+bool myCircularQueueEnQueue(MyCircularQueue* obj, int value) {
+    if(myCircularQueueIsFull(obj))
+        return false;
+    obj->base[obj->rear] = value;
+    obj->rear = (obj->rear+1) % (obj->capacity+1);
+    return true;
+}
+/** Delete an element from the circular queue. Return true if the operation is successful. */
+bool myCircularQueueDeQueue(MyCircularQueue* obj) {
+    if(myCircularQueueIsEmpty(obj))
+        return false;
+    obj->front = (obj->front+1) % (obj->capacity+1);
+    return true;
+}
+/** Get the front item from the queue. */
+int myCircularQueueFront(MyCircularQueue* obj) {
+    if(myCircularQueueIsEmpty(obj))
+        return -1;
+    
+    return obj->base[obj->front];
+}
+/** Get the last item from the queue. */
+int myCircularQueueRear(MyCircularQueue* obj) {
+    if(myCircularQueueIsEmpty(obj))
+        return -1;
+    return obj->base[(obj->rear-1+(obj->capacity+1)) % (obj->capacity+1)];
+}
+void myCircularQueueFree(MyCircularQueue* obj) {
+    free(obj->base);
+    free(obj);
+}
+/**
+ * Your MyCircularQueue struct will be instantiated and called as such:
+ * MyCircularQueue* obj = myCircularQueueCreate(k);
+ * bool param_1 = myCircularQueueEnQueue(obj, value);
+ 
+ * bool param_2 = myCircularQueueDeQueue(obj);
+ 
+ * int param_3 = myCircularQueueFront(obj);
+ 
+ * int param_4 = myCircularQueueRear(obj);
+ 
+ * bool param_5 = myCircularQueueIsEmpty(obj);
+ 
+ * bool param_6 = myCircularQueueIsFull(obj);
+ 
+ * myCircularQueueFree(obj);
+*/
