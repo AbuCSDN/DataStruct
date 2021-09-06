@@ -1,0 +1,152 @@
+16.模拟实现函数 pow(x,y) , 即实现运算x^y(x的y次方), 这里x和y都为整数
+
+int myPow(int x, int n)
+{
+ if (x == 0)
+ {
+  return 1;
+ }
+ if (n == 0)
+ {
+  return 1;
+ }
+ if (n == 1)
+ {
+  return x;
+ }
+ int ret = 0;
+ int tmp = myPow(x, n / 2);
+ if (n & 1 != 0)
+ {
+  ret = x*tmp*tmp;
+ }
+ else
+ {
+  ret = tmp*tmp;
+ }
+ return ret;
+}
+
+17.求一个有序数组中两个元素值相加为k的数字，返回这两个元素的下标。要求时间复杂度是O(n),空间复杂度O(1)
+
+bool FindNumbersWithSum(int data[], int length, int sum, int *num1, int *num2)
+{
+ bool found = false;
+ if (length < 1 || num1 == NULL || num2 == NULL)
+  return found;
+ int ahead = length - 1;
+ int behind = 0;
+ while (ahead > behind)
+ {
+  long long curSum = data[ahead] + data[behind];
+  if (curSum == sum)
+  {
+   *num1 = data[behind];
+   *num2 = data[ahead];
+   found = true;
+   break;
+  }
+  else if (curSum > sum)
+   ahead--;
+  else
+   behind++;
+ }
+ return found;
+}
+
+18.如何判断一个数n是否是2的k次方？注意：不用求K是多少，只需要判断，请编写函数实现
+
+一个数假如是2的n次方，那么它的二进制中有有一个1；一个数按位与上这个数减一只要等于0的话，这个数二进制中必然只有一个1
+
+int is_number(int x)
+{
+ if ((x&(x - 1)) == 0)
+  return 1;
+ else
+  return 0;
+}
+
+19.字符串压缩. 输入字符串只包含 a-z 字母以及结束标志，请编写函数实现对连续出现的相同字符进行压缩,例
+如： ”xxxyyyyz” 压缩后字符串为 ”3x4yz” ， ”yyyyyyy” 压缩后为 ”7y”
+
+void Cn(char p[100], char* q)
+{
+ int i = 0, j = 0;
+ int flag = 1;
+ char a = 0;
+ while (p[i])
+ {
+  a = p[i];
+  i++;
+  while (a == p[i])
+  {
+   flag++;
+   i++;
+  }
+  *(q + j) = a;
+  j++;
+  *(q + j) = 48 + flag;
+  flag = 1;
+  j++;
+ }
+ *(q + j) = '\0';
+}
+
+20.编写代码完成如下功能：删除字符串首尾的空格，中间的连续空格只留一个，原来字符串的顺序不变。
+如 “*****as****adadq*****”（*是空格）
+
+char* replace(char *str, int more)
+{
+ char *ptr = str;
+ while (*str != ' ')
+ {
+  char *m;
+  if (*str == '\0')
+  {
+   m = str - more - 1;
+   *m = *str;
+   break;
+  }
+  else
+  {
+   m = str - more;
+   *m = *str;
+   str++;
+  }
+ }
+ if (*str != '/0')
+ {
+  char *tem = str - more;
+  *tem = *str;
+  str;
+ }
+ return str;
+}
+
+char* formatString(char *sourceString) {
+ char *str = sourceString;   
+ while (*str == ' ')
+ {
+  str++;
+ }
+ sourceString = str;
+ int more = 0;
+ while (*str != '\0')
+ {
+  if (*str == ' ')
+  {
+   str++;
+   while (*str == ' ')
+   {
+    more++;
+    str++;
+    if (*str != ' ')
+     break;
+   }
+   str = replace(str, more);
+  }
+  else
+   str++;
+ }
+ return sourceString;
+}
